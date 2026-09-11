@@ -264,35 +264,35 @@
 const groups = [
   { family:"Bleu", note:"Qualité, sécurité, confiance", colors:[
     {name:"Lidl Dark Blue",  text:"light",
-      hex:"#002466", hsb:"219 · 100 · 40", cmyk:"100 · 89 · 35 · 23",
+      hex:"#002466", rgb:"0 · 36 · 102", hsb:"219 · 100 · 40", cmyk:"100 · 89 · 35 · 23",
       cmjnHex:"#003063", cmjnHsb:"211 · 100 · 39", cmjnCmyk:"100 · 84 · 37 · 23", pantone:"648 C"},
     {name:"Lidl Blue",       text:"light", primary:true,
-      hex:"#0050AA", hsb:"212 · 100 · 67", cmyk:"95 · 69 · 0 · 0",
+      hex:"#0050AA", rgb:"0 · 80 · 170", hsb:"212 · 100 · 67", cmyk:"95 · 69 · 0 · 0",
       cmjnHex:"#00539B", cmjnHsb:"208 · 100 · 61", cmjnCmyk:"96 · 67 · 7 · 0", pantone:"4152 C"},
     {name:"Lidl Light Blue", text:"light",
-      hex:"#008CD2", hsb:"200 · 100 · 82", cmyk:"80 · 33 · 0 · 0",
+      hex:"#008CD2", rgb:"0 · 140 · 210", hsb:"200 · 100 · 82", cmyk:"80 · 33 · 0 · 0",
       cmjnHex:"#008ECF", cmjnHsb:"199 · 100 · 81", cmjnCmyk:"79 · 31 · 0 · 0", pantone:"2382 C"},
   ]},
   { family:"Jaune", note:"Fraîcheur, vitalité", colors:[
     {name:"Lidl Dark Yellow", text:"dark",
-      hex:"#FFC400", hsb:"46 · 100 · 100", cmyk:"0 · 25 · 93 · 0",
+      hex:"#FFC400", rgb:"255 · 196 · 0", hsb:"46 · 100 · 100", cmyk:"0 · 25 · 93 · 0",
       cmjnHex:"#FDC41F", cmjnHsb:"45 · 88 · 99", cmjnCmyk:"0 · 25 · 90 · 0", pantone:"7408 C"},
     {name:"Lidl Yellow",      text:"dark", primary:true, accent:"#E60A14", accentText:"#fff",
-      hex:"#FFF000", hsb:"56 · 100 · 100", cmyk:"6 · 0 · 88 · 0",
+      hex:"#FFF000", rgb:"255 · 240 · 0", hsb:"56 · 100 · 100", cmyk:"6 · 0 · 88 · 0",
       cmjnHex:"#FFED00", cmjnHsb:"56 · 100 · 100", cmjnCmyk:"5 · 0 · 89 · 0", pantone:"102 C"},
     {name:"Lidl Light Yellow",text:"dark",
-      hex:"#FFED70", hsb:"52 · 56 · 100", cmyk:"3 · 2 · 66 · 0",
+      hex:"#FFED70", rgb:"255 · 237 · 112", hsb:"52 · 56 · 100", cmyk:"3 · 2 · 66 · 0",
       cmjnHex:"#FFF374", cmjnHsb:"55 · 55 · 100", cmjnCmyk:"4 · 0 · 64 · 0", pantone:"100 C"},
   ]},
   { family:"Rouge", note:"Attire l'œil, éveille la curiosité", colors:[
     {name:"Lidl Dark Red",   text:"light",
-      hex:"#AD080F", hsb:"357 · 95 · 68", cmyk:"21 · 100 · 100 · 16",
+      hex:"#AD080F", rgb:"173 · 8 · 15", hsb:"357 · 95 · 68", cmyk:"21 · 100 · 100 · 16",
       cmjnHex:"#A51008", cmjnHsb:"3 · 95 · 65", cmjnCmyk:"23 · 100 · 100 · 19", pantone:"2350 C"},
     {name:"Lidl Red",        text:"light", primary:true,
-      hex:"#E60A14", hsb:"357 · 96 · 90", cmyk:"0 · 99 · 96 · 0",
+      hex:"#E60A14", rgb:"230 · 10 · 20", hsb:"357 · 96 · 90", cmyk:"0 · 99 · 96 · 0",
       cmjnHex:"#E30613", cmjnHsb:"356 · 97 · 89", cmjnCmyk:"0 · 100 · 97 · 0", pantone:"485 C"},
     {name:"Lidl Light Red",  text:"dark",
-      hex:"#FF6E66", hsb:"3 · 60 · 100", cmyk:"0 · 69 · 51 · 0",
+      hex:"#FF6E66", rgb:"255 · 110 · 102", hsb:"3 · 60 · 100", cmyk:"0 · 69 · 51 · 0",
       cmjnHex:"#ED6B6A", cmjnHsb:"0 · 55 · 93", cmjnCmyk:"0 · 70 · 50 · 0", pantone:"6046 C"},
   ]},
 ];
@@ -426,17 +426,13 @@ function applyMode(mode){
       el.style.background = c.cmjnHex;
       valueEl.textContent = c.cmjnHex;
       el._copyValue = c.cmjnHex;
-      metaEl.innerHTML =
-        `<b>HSB</b><span>${c.cmjnHsb}</span>` +
-        `<b>CMYK</b><span>${c.cmjnCmyk}</span>`;
+      metaEl.innerHTML = `<b>CMYK</b><span>${c.cmjnCmyk}</span>`;
       el.setAttribute("aria-label", `Copier le HEX ${c.cmjnHex} de ${c.name}`);
     }else{
       el.style.background = c.hex;
       valueEl.textContent = c.hex;
       el._copyValue = c.hex;
-      metaEl.innerHTML =
-        `<b>HSB</b><span>${c.hsb}</span>` +
-        `<b>CMYK</b><span>${c.cmyk}</span>`;
+      metaEl.innerHTML = `<b>RGB</b><span>${c.rgb}</span>`;
       el.setAttribute("aria-label", `Copier le HEX ${c.hex} de ${c.name}`);
     }
     hintLabel.textContent = "HEX";
