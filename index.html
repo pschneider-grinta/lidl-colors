@@ -80,7 +80,7 @@
     border:none;
     border-radius:var(--radius);
     padding:18px 18px 16px;
-    min-height:190px;
+    min-height:212px;
     text-align:left;
     cursor:pointer;
     font-family:var(--font);
@@ -189,9 +189,54 @@
   }
   .swatch.compact{min-height:148px}
 
+  .hidden{display:none !important}
+
+  /* toggle de mode */
+  .mode-toggle{
+    position:relative;
+    display:inline-flex;
+    background:rgba(255,255,255,.08);
+    border:1px solid var(--line);
+    padding:4px;border-radius:999px;
+    margin-bottom:clamp(20px,3vw,32px);
+  }
+  .mode-thumb{
+    position:absolute;top:4px;bottom:4px;left:4px;
+    width:calc((100% - 8px) / 2);
+    background:var(--yellow);border-radius:999px;
+    z-index:0;
+    transition:transform .32s cubic-bezier(.4,0,.2,1), background-color .32s ease;
+  }
+  body.mode-cmyk .mode-thumb{background:#FFC400}
+  .mode-btn{
+    position:relative;z-index:1;flex:1 1 0;min-width:98px;
+    font-family:var(--font);font-weight:800;
+    font-size:.86rem;letter-spacing:.03em;text-align:center;
+    color:#cdd9f2;background:transparent;border:none;
+    padding:9px 22px;border-radius:999px;cursor:pointer;
+    transition:color .25s ease;
+  }
+  .mode-btn:hover{color:#fff}
+  .mode-btn.active{color:var(--ink)}
+  .mode-btn:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:999px}
+
+  /* pastille Pantone (mode CMYK) */
+  .pantone-chip{
+    display:none;align-self:flex-start;margin-top:10px;
+    align-items:center;gap:6px;
+    font-family:var(--font);font-weight:800;font-size:.72rem;
+    color:inherit;background:transparent;cursor:pointer;
+    border:1.5px solid currentColor;border-radius:999px;
+    padding:5px 10px;opacity:.85;transition:opacity .12s ease;
+  }
+  .pantone-chip:hover{opacity:1}
+  .pantone-chip svg{width:13px;height:13px}
+
+  body.mode-cmyk .swatch .pantone-chip{display:inline-flex}
+
   @media (max-width:720px){
     .grid{grid-template-columns:1fr}
-    .swatch{min-height:160px}
+    .swatch{min-height:200px}
   }
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important}
@@ -200,10 +245,16 @@
 </head>
 <body>
 <div class="wrap">
+  <div class="mode-toggle" role="group" aria-label="Format de couleur">
+    <span class="mode-thumb" aria-hidden="true"></span>
+    <button type="button" class="mode-btn active" data-mode="rgb">RGB</button>
+    <button type="button" class="mode-btn" data-mode="cmyk">CMYK</button>
+  </div>
+
   <h2 class="section-title">Corporate Brand Palette</h2>
   <main id="app"></main>
 
-  <h2 class="section-title second">Sub-brand Palettes</h2>
+  <h2 class="section-title second" id="subtitle">Sub-brand Palettes</h2>
   <div id="subbrands"></div>
 </div>
 
@@ -212,19 +263,37 @@
 <script>
 const groups = [
   { family:"Bleu", note:"Qualité, sécurité, confiance", colors:[
-    {name:"Lidl Dark Blue",  hex:"#002466", rgb:"0 · 36 · 102", cmyk:"100 · 70 · 0 · 50", pantone:"648 C", ral:"5013", text:"light"},
-    {name:"Lidl Blue",       hex:"#0050AA", rgb:"0 · 80 · 170", cmyk:"100 · 62 · 0 · 10", pantone:"4152 C", ral:"5010", text:"light", primary:true},
-    {name:"Lidl Light Blue", hex:"#008CD2", rgb:"0 · 140 · 210", cmyk:"80 · 30 · 0 · 0", pantone:"2382 C", ral:"5015", text:"light"},
+    {name:"Lidl Dark Blue",  text:"light",
+      hex:"#002466", hsb:"219 · 100 · 40", cmyk:"100 · 89 · 35 · 23",
+      cmjnHex:"#003063", cmjnHsb:"211 · 100 · 39", cmjnCmyk:"100 · 84 · 37 · 23", pantone:"648 C"},
+    {name:"Lidl Blue",       text:"light", primary:true,
+      hex:"#0050AA", hsb:"212 · 100 · 67", cmyk:"95 · 69 · 0 · 0",
+      cmjnHex:"#00539B", cmjnHsb:"208 · 100 · 61", cmjnCmyk:"96 · 67 · 7 · 0", pantone:"4152 C"},
+    {name:"Lidl Light Blue", text:"light",
+      hex:"#008CD2", hsb:"200 · 100 · 82", cmyk:"80 · 33 · 0 · 0",
+      cmjnHex:"#008ECF", cmjnHsb:"199 · 100 · 81", cmjnCmyk:"79 · 31 · 0 · 0", pantone:"2382 C"},
   ]},
   { family:"Jaune", note:"Fraîcheur, vitalité", colors:[
-    {name:"Lidl Dark Yellow", hex:"#FFC400", rgb:"255 · 196 · 0", cmyk:"0 · 25 · 90 · 0", pantone:"7408 C", ral:"1004", text:"dark"},
-    {name:"Lidl Yellow",      hex:"#FFF000", rgb:"255 · 240 · 0", cmyk:"0 · 0 · 100 · 0", pantone:"102 C", ral:"1021", text:"dark", primary:true, accent:"#E60A14", accentText:"#fff"},
-    {name:"Lidl Light Yellow",hex:"#FFED70", rgb:"255 · 237 · 112", cmyk:"0 · 0 · 65 · 0", pantone:"100 C", ral:"1016", text:"dark"},
+    {name:"Lidl Dark Yellow", text:"dark",
+      hex:"#FFC400", hsb:"46 · 100 · 100", cmyk:"0 · 25 · 93 · 0",
+      cmjnHex:"#FDC41F", cmjnHsb:"45 · 88 · 99", cmjnCmyk:"0 · 25 · 90 · 0", pantone:"7408 C"},
+    {name:"Lidl Yellow",      text:"dark", primary:true, accent:"#E60A14", accentText:"#fff",
+      hex:"#FFF000", hsb:"56 · 100 · 100", cmyk:"6 · 0 · 88 · 0",
+      cmjnHex:"#FFED00", cmjnHsb:"56 · 100 · 100", cmjnCmyk:"5 · 0 · 89 · 0", pantone:"102 C"},
+    {name:"Lidl Light Yellow",text:"dark",
+      hex:"#FFED70", hsb:"52 · 56 · 100", cmyk:"3 · 2 · 66 · 0",
+      cmjnHex:"#FFF374", cmjnHsb:"55 · 55 · 100", cmjnCmyk:"4 · 0 · 64 · 0", pantone:"100 C"},
   ]},
   { family:"Rouge", note:"Attire l'œil, éveille la curiosité", colors:[
-    {name:"Lidl Dark Red",   hex:"#AD080F", rgb:"173 · 8 · 15", cmyk:"0 · 100 · 100 · 35", pantone:"2350 C", ral:"3011", text:"light"},
-    {name:"Lidl Red",        hex:"#E60A14", rgb:"230 · 10 · 20", cmyk:"0 · 100 · 100 · 0", pantone:"485 C", ral:"3020", text:"light", primary:true},
-    {name:"Lidl Light Red",  hex:"#FF6E66", rgb:"255 · 110 · 102", cmyk:"0 · 70 · 50 · 0", pantone:"6046 C", ral:"3017", text:"dark"},
+    {name:"Lidl Dark Red",   text:"light",
+      hex:"#AD080F", hsb:"357 · 95 · 68", cmyk:"21 · 100 · 100 · 16",
+      cmjnHex:"#A51008", cmjnHsb:"3 · 95 · 65", cmjnCmyk:"23 · 100 · 100 · 19", pantone:"2350 C"},
+    {name:"Lidl Red",        text:"light", primary:true,
+      hex:"#E60A14", hsb:"357 · 96 · 90", cmyk:"0 · 99 · 96 · 0",
+      cmjnHex:"#E30613", cmjnHsb:"356 · 97 · 89", cmjnCmyk:"0 · 100 · 97 · 0", pantone:"485 C"},
+    {name:"Lidl Light Red",  text:"dark",
+      hex:"#FF6E66", hsb:"3 · 60 · 100", cmyk:"0 · 69 · 51 · 0",
+      cmjnHex:"#ED6B6A", cmjnHsb:"0 · 55 · 93", cmjnCmyk:"0 · 70 · 50 · 0", pantone:"6046 C"},
   ]},
 ];
 
@@ -235,6 +304,8 @@ const app = document.getElementById("app");
 const toast = document.getElementById("toast");
 let toastTimer;
 
+const corpSwatches = [];
+
 groups.forEach(g => {
   const sec = document.createElement("section");
   sec.className = "family";
@@ -242,27 +313,39 @@ groups.forEach(g => {
   grid.className = "grid";
 
   g.colors.forEach(c => {
-    const btn = document.createElement("button");
-    btn.className = "swatch " + c.text + (c.primary ? " primary" : "");
-    btn.style.background = c.hex;
-    if(c.accent) btn.style.setProperty('--accent', c.accent);
-    if(c.accentText) btn.style.setProperty('--accent-text', c.accentText);
-    btn.type = "button";
-    btn.setAttribute("aria-label", `Copier le code hexadécimal ${c.hex} de ${c.name}`);
-    btn.innerHTML = `
-      <span class="copyhint">${copyIcon} HEX</span>
+    const el = document.createElement("div");
+    el.className = "swatch " + c.text + (c.primary ? " primary" : "");
+    el.style.background = c.hex;
+    if(c.accent) el.style.setProperty('--accent', c.accent);
+    if(c.accentText) el.style.setProperty('--accent-text', c.accentText);
+    el.setAttribute("role", "button");
+    el.setAttribute("tabindex", "0");
+    el.innerHTML = `
+      <span class="copyhint">${copyIcon} <span class="hint-label">HEX</span></span>
       ${c.primary ? '<span class="badge">Primary</span>' : ''}
       <span class="name">${c.name}</span>
-      <span class="hex">${c.hex}</span>
-      <span class="meta">
-        <b>RGB</b><span>${c.rgb}</span>
-        <b>CMYK</b><span>${c.cmyk}</span>
-        <b>Pantone</b><span>${c.pantone}</span>
-        <b>RAL</b><span>${c.ral}</span>
-      </span>
+      <span class="value hex">${c.hex}</span>
+      <span class="meta"></span>
+      <button type="button" class="pantone-chip">${copyIcon} Pantone ${c.pantone}</button>
       <span class="done">${checkIcon} Copié !</span>`;
-    btn.addEventListener("click", () => copyHex(c.hex, btn));
-    grid.appendChild(btn);
+
+    const valueEl = el.querySelector(".value");
+    const hintLabel = el.querySelector(".hint-label");
+    const pantoneChip = el.querySelector(".pantone-chip");
+    const metaEl = el.querySelector(".meta");
+
+    const doCopy = () => copyValue(el._copyValue, el);
+    el.addEventListener("click", doCopy);
+    el.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); doCopy(); }
+    });
+    pantoneChip.addEventListener("click", (e) => {
+      e.stopPropagation();
+      copyValue(c.pantone, el);
+    });
+
+    corpSwatches.push({ el, c, valueEl, hintLabel, metaEl });
+    grid.appendChild(el);
   });
   sec.appendChild(grid);
   app.appendChild(sec);
@@ -296,23 +379,23 @@ subBrands.forEach(b => {
       <span class="hex">${c.hex}</span>
       <span class="meta"><b>RGB</b><span>${c.rgb}</span></span>
       <span class="done">${checkIcon} Copié !</span>`;
-    btn.addEventListener("click", () => copyHex(c.hex, btn));
+    btn.addEventListener("click", () => copyValue(c.hex, btn));
     grid.appendChild(btn);
   });
   sec.appendChild(grid);
   sub.appendChild(sec);
 });
 
-async function copyHex(hex, btn){
+async function copyValue(value, el){
   let ok = false;
   try{
-    await navigator.clipboard.writeText(hex);
+    await navigator.clipboard.writeText(value);
     ok = true;
   }catch(e){
     // fallback pour les contextes sans Clipboard API
     try{
       const ta = document.createElement("textarea");
-      ta.value = hex; ta.style.position="fixed"; ta.style.opacity="0";
+      ta.value = value; ta.style.position="fixed"; ta.style.opacity="0";
       document.body.appendChild(ta); ta.focus(); ta.select();
       ok = document.execCommand("copy");
       document.body.removeChild(ta);
@@ -321,13 +404,53 @@ async function copyHex(hex, btn){
 
   if(ok){
     document.querySelectorAll(".swatch.copied").forEach(s=>s.classList.remove("copied"));
-    btn.classList.add("copied");
-    setTimeout(()=>btn.classList.remove("copied"), 1100);
-    showToast(`${hex} copié`);
+    el.classList.add("copied");
+    setTimeout(()=>el.classList.remove("copied"), 1100);
+    showToast(`${value} copié`);
   }else{
     showToast("Copie impossible — sélectionnez le code manuellement");
   }
 }
+
+// --- Toggle RGB / CMYK ---
+const subtitle = document.getElementById("subtitle");
+const subContainer = document.getElementById("subbrands");
+const thumb = document.querySelector(".mode-thumb");
+
+function applyMode(mode){
+  const cmyk = mode === "cmyk";
+  document.body.classList.toggle("mode-cmyk", cmyk);
+  if(thumb) thumb.style.transform = cmyk ? "translateX(100%)" : "translateX(0)";
+  corpSwatches.forEach(({ el, c, valueEl, hintLabel, metaEl }) => {
+    if(cmyk){
+      el.style.background = c.cmjnHex;
+      valueEl.textContent = c.cmjnHex;
+      el._copyValue = c.cmjnHex;
+      metaEl.innerHTML =
+        `<b>HSB</b><span>${c.cmjnHsb}</span>` +
+        `<b>CMYK</b><span>${c.cmjnCmyk}</span>`;
+      el.setAttribute("aria-label", `Copier le HEX ${c.cmjnHex} de ${c.name}`);
+    }else{
+      el.style.background = c.hex;
+      valueEl.textContent = c.hex;
+      el._copyValue = c.hex;
+      metaEl.innerHTML =
+        `<b>HSB</b><span>${c.hsb}</span>` +
+        `<b>CMYK</b><span>${c.cmyk}</span>`;
+      el.setAttribute("aria-label", `Copier le HEX ${c.hex} de ${c.name}`);
+    }
+    hintLabel.textContent = "HEX";
+  });
+  subtitle.classList.toggle("hidden", cmyk);
+  subContainer.classList.toggle("hidden", cmyk);
+  document.querySelectorAll(".mode-btn").forEach(b =>
+    b.classList.toggle("active", b.dataset.mode === mode));
+}
+
+document.querySelectorAll(".mode-btn").forEach(b => {
+  b.addEventListener("click", () => applyMode(b.dataset.mode));
+});
+applyMode("rgb");
 
 function showToast(msg){
   toast.textContent = msg;
